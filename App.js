@@ -1,10 +1,36 @@
-import * as React from 'react';
+import React, {Component} from 'react';
 import { View, Text, Button, TextInput, Image, StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+//import { Input } from 'react-native-elements';
 
-function LoginScreen ({ navigation }) {
+interface Props {}
+interface State {
+  email: string;
+  password: string;
+}
+
+//const userInfo = {username: 'admin', password: 'pass12345' }
+
+
+class LoginScreen extends Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      emailAddress: '',
+      passWord: ''
+    }
+  }
+
+onPressButton() {
+  this.onFetchLogin();
+}
+
+  render() {
+
+//function LoginScreen ({ navigation }) {
   return (
     <View style={ styles.view }>
       <Image
@@ -15,17 +41,69 @@ function LoginScreen ({ navigation }) {
       <Text style={{ fontSize: 30, marginBottom: 30 }}>Login</Text>
       <TextInput
         style={{ height: 50, width: 200, backgroundColor: 'white' }}
-        placeholder= "Username"
+        placeholder= "Email"
+        onChangeText={(emailAddress)=>this.setState({emailAddress})}
+        value={this.state.emailAddress}
       />
       <TextInput
+        secureTextEntry={true}
         style={{ height: 50, width: 200, backgroundColor: 'white' }}
         placeholder= "Password"
+        onChangeText={(passWord)=>this.setState({passWord})}
+        value={this.state.passWord}
       />
-      <Button title='Login' onPress={() => navigation.navigate('Header')} />
-      <Button title='Register' onPress={() => navigation.navigate('Header')} />
+      <Button
+        title='Login'
+        onPress={this.onPressButton.bind(this)}
+      //  onPress={() => navigation.navigate('Header')}
+      />
+      <Button
+        title='Register'
+        onPress={() => this.props.navigation.navigate('Header')} />
     </View>
   );
 }
+
+async onFetchLogin() {
+  var data={
+    email: this.state.emailAddress,
+    password: this.state.passWord
+  };
+  try {
+    console.log(data);
+    let response =
+    await fetch(
+      "https://calndr.ai/api/login",
+      {
+        method: "POST",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      }
+    )
+    let json = await response.json();
+    //return json.email
+    console.log(json.email);
+    /*.then((response) => response.json())
+      .then((json) => {
+        //return json.email;
+        console.log(json()) */
+
+   //let json = await response.json();
+    //console.log(json.email);
+    if (response.status >= 200 && response.status < 300) {
+      alert("authenticated successfully");
+      //this.props.navigation.navigate('Header')
+    }
+  } catch (errors) {
+    alert(errors);
+  }
+}
+
+}
+
 
 function TestScreen ({route, navigation }) {
   React.useEffect(() => {
